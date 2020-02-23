@@ -1,0 +1,300 @@
+#Longitudinal Data Analysis : 
+
+#I have considered the given data to be longitudinal data because :
+
+#Longitudinal data arises when we measure a response variable (value) of interest repeatedly
+#through time for multiple subjects (type).Here the response variable (value) is continuous.
+#The objective of a statistical analysis of longitudinal data is usually to model the expected value of the response
+#variable as either a linear or nonlinear function of a set of explanatory variables. Statistical analysis of longitudinal
+#data also requires an accounting for possible between-subject heterogeneity and within-subject correlation.
+
+
+#This data exhibit strong intra-individual correlations: the value observed at each time depends on the 
+#one(s) observed before ⇒ this correlation defines individual-specific features driving
+#the observed outcome.
+
+
+###Study outline##############
+
+#Aim: To track patients for their sleep, mood, rumination and stress over time to see if therapy is making a difference.
+
+#Design: Every morning, patients get a notification to rate their mood, their sleep, stress and rumination on a float scale of 0-4.
+#Additionally, they can enter these subjective measures throughout the day,
+#whenever they feel like it’s necessary.
+
+#Outcome measurement: Patients progress was measured by assessing the value given by them
+#for different types at different times.
+
+#Question: Is the value given by each user(patient) changing with time? Does the
+#values for all four types increases with date and time ?
+
+####################
+#Step 0: data inspection
+#Load the lme4 package
+library(lme4)
+#load the  data set
+data <- read.csv(file.choose())
+
+head(data)
+str(data)
+data$date<- as.numeric(data$date)
+
+data$type<- as.numeric(data$type)
+
+
+#Explore the data:
+  
+dim(data)
+# Rows:7460 Columns:4
+colnames(data)
+#4 covariates 
+#"date"    "user_id" "type"    "value"
+length(unique(data$user_id))
+#100 users (ids: 0-99)
+
+###Correlation###
+#Calculated correlation by type and by user_id against values.
+df=df %>% 
+  group_by(user_id,type)%>% 
+  mutate(correlation_with_date=cor(date_time,value))
+df[which(df$correlation_with_date==1),]=0
+df[is.na(df)]=0
+df=df %>% 
+  group_by(type)%>% 
+  mutate(avg_cor_type=mean(correlation_with_date))
+df=df %>% 
+  group_by(user_id)%>% 
+  mutate(avg_cor_user=mean(correlation_with_date))
+dff=df[,c(4,9)]
+dfff=df[,c(5,8)]
+dff=dff[!duplicated(dff),]
+dfff=dfff[!duplicated(dfff),]
+
+#Below table shows that mood, sleep and anticipatory stress are negatively correlated with their average values. Only Rumination stress is 
+#positively coorelated. This means that as the time increases, there is no improvement in the patients average values for all 4 types 
+#except for the people with rumination stress. 
+
+#type	                 avg_cor_type
+#mood	                -0.046508808
+#sleep	              -0.010460066
+#anticipatoryStress	  -0.231007201
+#ruminationStress	     0.069012063
+
+#Below table shows the average correlation of all 100 users/ patients with respect to their values.
+#Patient with id 6 has the highest correlation with the average value, which means that this patient progress is going good and is 
+#improving in all 4 types.
+#Patient with 95 has the least correlation,which means that there is no improvement in his mental health progress.
+
+user_id	avg_cor_user
+0	-0.219760394
+1	0.218765209
+2	0.03076336
+3	0.056018618
+4	-0.019360592
+5	0.443359006
+6	0.024066456
+7	0.008423844
+8	0.287644176
+9	-0.232306856
+10	0.084297803
+11	-0.168155322
+12	0.06080556
+13	0.074188524
+14	-0.259927511
+15	-0.370859269
+16	0.152076519
+17	-0.043947865
+18	0.050043006
+19	-0.053414514
+20	-0.127733017
+21	0.080103275
+22	0.161765606
+23	0.038514221
+24	-0.032778542
+25	-0.003189045
+26	-0.068237506
+27	-0.45204384
+28	-0.129595699
+29	0.178376405
+30	-0.139200751
+31	-0.448797566
+32	-0.176982191
+33	-0.005095904
+34	0.051489285
+35	-0.416173957
+36	-0.280296894
+37	-0.283204861
+38	0.097883705
+39	0.033021341
+40	-0.299062921
+41	0.091473792
+42	0.050635608
+43	0.059660116
+44	0.062271076
+45	-0.103474299
+46	-0.022505674
+47	-0.122806732
+48	-0.031010311
+49	-0.151453857
+50	-0.066385206
+51	-0.207886514
+52	0.011003276
+53	0.06514453
+54	0.132341163
+55	0.137776612
+56	-0.206290848
+57	0.245468235
+58	-0.135409537
+59	0.006469347
+60	0.061457634
+61	0.207202605
+62	-0.03402221
+63	-0.257489625
+64	0.024908529
+65	-0.237115082
+66	-0.04006337
+67	0.399549352
+68	-0.038895521
+69	-0.018185133
+70	-0.077422798
+71	-0.240848601
+72	-0.067576586
+73	0.073536616
+74	0.043231244
+75	0.007226166
+76	-0.252335488
+77	0.217329347
+78	-0.073413192
+79	-0.154100248
+80	-0.015710169
+81	-0.092619766
+82	0.046710355
+83	-0.058762435
+84	-0.089396925
+85	-0.007919515
+86	0.083815417
+87	0.152726802
+88	-0.348499116
+89	-0.427575728
+90	-0.155436529
+91	-0.150390672
+92	-0.186329644
+93	-0.11903126
+94	-0.470267077
+95	-0.199471949
+96	-0.066444487
+97	-0.064232605
+98	-0.095719437
+99	-0.324260761
+
+
+
+#Step 1: data visualisation
+#Crude representation of the data
+plot(data$type,data$value)
+#All 4 types have got values from 0 to 4 
+
+library(ggplot2)
+ggplot(data, aes(x = type, y = value)) +
+  geom_bar(
+    aes(color = type, fill = user_id),
+    stat = "identity", position = position_dodge(0.8),
+    width = 0.7
+  )
+
+#Step 2: Model formulation
+#Investigating individual trajectories
+table(data$user_id)
+#each user has rated multiple times for different types.
+#User 53 has recorded his ratings for 539 times (highest)
+#User 42 has recorded his ratings for only 9 times (lowest)
+#This is not a balanced design.
+
+
+#Step 3: Run the model
+
+#Defining the model to include a random intercept and slope:
+Mymodel <- lmer(value∼date + (date|type),data)
+
+Mymodel
+#Interpreting the fixed effect estimates?
+summary(Mymodel)
+
+#Estimates suggest an average value given by patients for different types.
+
+#What do the random effect estimates represent?
+  ranef(Mymodel)
+#REs measure the individual increase from the average (i)-
+#value at a given time (intercept), and (ii)- value
+#increase with  date(time) (slope).
+  
+#What is the correlation between the random intercept and slope?
+#Results confirmed a  correlation of -0.8 between random slope and intercept 
+  
+#How would the RE estimates look like if there was not individual differences?
+#If there was no intra-individual correlation within the data,
+#then the random effect estimates would support a limited
+#deviation from the overall intercept and slope
+  #⇒ small RE estimates
+ # ⇒ small variance of the RE
+
+library (nlme)
+#linear models for each individual
+G.data<-groupedData( value ~ user_id | type,
+                     data = data)
+
+lm.list <- lmList(value~I(user_id),data=G.data)
+
+plot(intervals(lm.list))
+#Analysis Strategy 1:Linear Models for each individual :
+#Issues:
+#The analysis reports about the individual patients, there is no ideal about overall pattern.
+#The plot shows that there is individual level variation interms of both intercept and slope but is not quantified.
+
+
+
+
+#fixed effects model
+
+data.lm <-lm(value~type+I(user_id),data=G.data)
+summary(data.lm)
+
+library(effects)
+plot(allEffects(data.lm),cex=0.8,rotx=90)
+
+#Analysis Strategy 2 :Fixed effects models:
+#A general intercept and slope for the overall data but include an indicator variable for each patient in the regression.
+#Issues:
+#We can see that the individual intercepts and the standard errors are similar as above strategy.
+
+#Analysis Strategy 3 : Linear Mixed effects model:
+#Fit a general intercept and slope for the overall data but include a random effect for each indiviual.
+#Here we have random effect for each type.
+#Advantages of using this strategy :
+#Two regression paraameters, two Standard errors, one variance parameter for the random effect and one variance parameter
+#for the random error is all that is needed to explain the model.
+#The standard deviation of intercept is smaller for the random effects model, compared to the fixed effect model.
+#mixed effects model
+#Random Intercept
+data.lme1 <-lme(value~I(user_id)*type, random=~1|date,data=G.data)
+
+#Random slope
+data.lme2 <-lme(value~I(user_id)*type, random=~I(user_id)-1,data=G.data)
+
+#Random Intercept, Random slope
+data.lme3 <-lme(value~I(user_id)*type, random=~I(user_id),data=G.data)
+
+install.packages("texreg")
+library(texreg)
+
+screenreg(list(data.lme1,data.lme2,data.lme3),single.row = FALSE,stars =c(0.05), custom.model.names =c("RI","RS","RI,RS"))
+
+
+####### For the analysis and visualization to be much better, i feel gender info on the patients would be important to collect to see
+##the patterns in both the genders.
+
+### I have also plotted the data in Tableau to see if there are any interesting patterns by converting the date column into
+#year, month, day, hour , minute and seconds for the better visualization. Please find the tableau file to see the different visulaizaions
+
+
+

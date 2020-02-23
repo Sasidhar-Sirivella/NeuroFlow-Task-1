@@ -293,8 +293,20 @@ screenreg(list(data.lme1,data.lme2,data.lme3),single.row = FALSE,stars =c(0.05),
 ####### For the analysis and visualization to be much better, i feel gender info on the patients would be important to collect to see
 ##the patterns in both the genders.
 
-### I have also plotted the data in Tableau to see if there are any interesting patterns by converting the date column into
+### I have also created the dashboard in  Tableau to see if there are any interesting patterns by converting the date column into
 #year, month, day, hour , minute and seconds for the better visualization. Please find the tableau file to see the different visulaizaions
+
+#Divided the date column into weekdays and further divided them to Morning/Afternoon and Evening for the better interpretation of the data.
+
+#When I plot the graph between average value of each type against different times in week days,
+#Mood has higher average value on Tuesday afternoon/ morning and lowest on Wednesday morning.
+#The values of anticipatory stress has got some interesting pattern, that is its not consistent and has lot of fluctuations
+#(zigzag). Overall, anticipatory Stress has got higher average values on Sundays,Tuesdays and Thursdays.
+
+#Average value of mood is almost consistent with no much progress in patients.
+
+#Also, Wednesday Morning/ afternoon is the time where most of the patients rates their value and least on Friday evening.
+
 
 
 
